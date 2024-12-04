@@ -16,17 +16,11 @@ inner join restbill
 group by room_name;
 -- 4
 create or replace view teamTotals as
-select concat(first_name,surname) as headwaiter_name, SUM(bill_total) as total_sum
-from restbill rb
-cross join reststaff rs on rb.waiter_no = rs.staff_no
-where headwaiter is not null
-group by headwaiter;
+select concat(headwaiters.first_name,' ',headwaiters.surname) as headwaiter_name,sum(bills.bill_total) as total_sum
+from reststaff headwaiters
+inner join reststaff waiters on headwaiters.staff_no=waiters.headwaiter
+inner join restaurantdb.restbill bills on waiters.staff_no = bills.waiter_no
+where waiters.headwaiter is not null
+group by waiters.headwaiter;
 
 select * from teamTotals;
-
--- 4
-select headwaiter,count(staff_no) as teamSize,sum(r.bill_total)
-from reststaff
-cross join restaurantdb.restbill r on reststaff.staff_no = r.waiter_no
-where headwaiter is not null
-group by headwaiter;
